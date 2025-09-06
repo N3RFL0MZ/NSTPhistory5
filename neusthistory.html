@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEUST Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background: #f0f0f0;
+    }
+    .center {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    h1 {
+      font-size: 2.5em;
+      font-weight: bold;
+    }
+    button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+    .blue-btn {
+      background: blue;
+      color: white;
+    }
+    .blue-btn:active {
+      box-shadow: 0 0 20px blue;
+      transform: scale(0.95);
+    }
+    .red-btn {
+      background: red;
+      color: white;
+    }
+    .red-btn:active {
+      box-shadow: 0 0 20px red;
+      transform: scale(0.95);
+    }
+    #quiz-page {
+      display: none;
+      padding: 20px;
+    }
+    .question {
+      margin: 20px 0;
+      text-align: left;
+    }
+    .choices {
+      margin-left: 20px;
+      text-align: left;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    #try-again-btn {
+      display: none; /* hidden by default */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Welcome Page -->
+  <div id="welcome-page" class="center">
+    <img src="/storage/emulated/0/Download/cropped-neust_logo-1-1.png" alt="error" width="200" height="300"></img>
+    <strong>
+    <h0>HISTORY</h0>
+      </strong>
+    <h1>WELCOME MGA KA GROUP 5</h1>
+    <h0>By: Louie Madrid</h0>
+    <button class="blue-btn" onclick="startQuiz()">Start</button>
+  </div>
+
+  <!-- Quiz Page -->
+  <div id="quiz-page">
+    <h2>NEUST History Quiz</h2>
+    <h3>___________________________________</h3>
+    <form id="quiz-form"></form>
+    <button type="button" class="blue-btn" onclick="submitQuiz()">Submit</button>
+    <div id="result"></div>
+    <button id="try-again-btn" class="red-btn" onclick="tryAgain()">Try Again</button>
+  </div>
+
+  <script>
+    // Question Bank (sample, extend as needed)
+    const questionsBank = [
+      { question: "In what year did the vocational course at the Wright Institute start?", choices: ["A. 1908", "B. 1929", "C. 1931"], answer: "A" },
+      { question: "Where was the Wright Institute located?", choices: ["A. Cabanatuan City", "B. San Isidro", "C. Manila"], answer: "B" },
+      { question: "What was the first course offered at the Wright Institute?", choices: ["A. Dressmaking", "B. Woodworking and Telegraphy", "C. Cosmetology"], answer: "B" },
+      { question: "In what school year did the Wright Institute course end?", choices: ["A. 1927-1928", "B. 1929-1930", "C. 1931-1932"], answer: "A" },
+      { question: "When was the Nueva Ecija Trade School (NETS) established?", choices: ["A. 1929", "B. 1931", "C. 1945"], answer: "A" },
+      { question: "When was NETS transferred to Cabanatuan City?", choices: ["A. 1929", "B. 1931", "C. 1948"], answer: "B" },
+      { question: "Which event interrupted the trade school’s operation in 1941?", choices: ["A. The First World War", "B. The Second World War", "C. Martial Law"], answer: "B" },
+      { question: "When did the trade school reopen after World War II?", choices: ["A. 1945", "B. 1946", "C. 1948"], answer: "A" },
+      { question: "What course was added in 1948, admitting female students?", choices: ["A. Dressmaking", "B. Cosmetology", "C. Food trades"], answer: "A" },
+      { question: "What Republic Act converted NETS into CLSAT?", choices: ["A. RA 845", "B. RA 3998", "C. RA 8612"], answer: "A" },
+      { question: "What year did NETS become CLSAT?", choices: ["A. 1945", "B. 1953", "C. 1964"], answer: "B" },
+      { question: "What Republic Act converted CLSAT into CLPC?", choices: ["A. RA 845", "B. RA 3998", "C. RA 8612"], answer: "B" },
+      { question: "When was CLPC converted into NEUST?", choices: ["A. 1964", "B. 1998", "C. 2006"], answer: "B" },
+      { question: "Who was the first University President of NEUST?", choices: ["A. Dr. Gemiliano C. Calling", "B. Dr. Hilario C. Ortiz", "C. Dr. Feliciana P. Jacoba"], answer: "A" },
+      { question: "When did Dr. Gemiliano C. Calling pass away?", choices: ["A. 1998", "B. 2006", "C. 2007"], answer: "B" },
+      { question: "Who succeeded Dr. Calling as President?", choices: ["A. Dr. Feliciana P. Jacoba", "B. Dr. Hilario C. Ortiz", "C. Dr. Rhodora R. Jugo"], answer: "B" },
+      { question: "When was Atty. Hilario C. Ortiz sworn as the 2nd University President?", choices: ["A. 2006", "B. 2007", "C. 2011"], answer: "B" },
+      { question: "Who became the first woman President of NEUST?", choices: ["A. Dr. Feliciana P. Jacoba", "B. Dr. Rhodora R. Jugo", "C. Dr. Gloria Arroyo"], answer: "A" },
+      { question: "When did Dr. Feliciana P. Jacoba become President?", choices: ["A. 2011", "B. 2016", "C. 2024"], answer: "B" },
+      { question: "Who became the 4th University President in 2024?", choices: ["A. Dr. Rhodora R. Jugo", "B. Dr. Hilario Ortiz", "C. Dr. Jose de Venecia"], answer: "A" }
+    ];
+
+    let currentQuestions = [];
+
+    function startQuiz() {
+      document.getElementById("welcome-page").style.display = "none";
+      document.getElementById("quiz-page").style.display = "block";
+      generateQuiz();
+    }
+
+    function generateQuiz() {
+      const quizForm = document.getElementById("quiz-form");
+      quizForm.innerHTML = "";
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("try-again-btn").style.display = "none"; // hide again on new quiz
+
+      // Random pick 5
+      currentQuestions = questionsBank.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+      currentQuestions.forEach((q, index) => {
+        let questionHTML = `<div class="question"><p><b>Q${index + 1}:</b> ${q.question}</p>`;
+        q.choices.forEach(choice => {
+          questionHTML += `
+            <div class="choices">
+              <label><input type="radio" name="q${index}" value="${choice.charAt(0)}"> ${choice}</label>
+            </div>`;
+        });
+        questionHTML += `</div>`;
+        quizForm.innerHTML += questionHTML;
+      });
+    }
+
+    function submitQuiz() {
+      const answers = document.querySelectorAll("input[type=radio]:checked");
+      let score = 0;
+      let correctNumbers = [];
+      let wrongNumbers = [];
+
+      answers.forEach((answer, index) => {
+        const questionIndex = parseInt(answer.name.replace("q", ""));
+        const question = currentQuestions[questionIndex];
+        if (answer.value === question.answer) {
+          score++;
+          correctNumbers.push(questionIndex + 1);
+        } else {
+          wrongNumbers.push(questionIndex + 1);
+        }
+      });
+
+      let result = `Your Score: ${score} / ${currentQuestions.length}<br>`;
+      if (correctNumbers.length > 0) {
+        result += `✅ Correct: ${correctNumbers.join(", ")}<br>`;
+      }
+      if (wrongNumbers.length > 0) {
+        result += `❌ Wrong: ${wrongNumbers.join(", ")}`;
+      }
+
+      document.getElementById("result").innerHTML = result;
+      document.getElementById("try-again-btn").style.display = "inline-block"; // show Try Again only now
+    }
+
+    function tryAgain() {
+      generateQuiz();
+    }
+  </script>
+
+</body>
+</html>
